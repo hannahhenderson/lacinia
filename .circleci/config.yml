@@ -1,29 +1,30 @@
-version: 2
+version: 2.1
+
+orbs:
+  clojure: hannah/clojure@dev:test
 
 jobs:
   test:
-    docker:
-      - image: clojure:lein-2.7.1
-    working_directory: /root/lacinia
+    executor:
+      name: clojure/generic_exec
+      wd: /root/lacinia
+      docker_image: clojure:lein-2.7.1
     steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - &cache_key v1-dependency-jars-{{ checksum "project.clj" }}
-            - v1-dependency-jars
-      - run:
-          command: lein deps
-      - save_cache:
-          key: *cache_key
-          paths:
-            - /root/.m2
+      - cljoure/cached_test:
+         pre_test_steps:
+           - restore_cache:
+               keys:
+               - &cache_key v1-dependency-jars-{{ checksum "project.clj" }}
+               - v1-dependency-jars
+         test_str: lein deps # Not a test string... but orb expects a test string here
+         save_key: *cache_key
+         save_path: /root/.m2
       - run:
           command: lein test2junit
       - store_test_results:
           path: /root/lacinia/target/test2junit
 
 workflows:
-  version: 2
   test:
     jobs:
-      - test
+    - test
