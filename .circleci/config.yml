@@ -10,7 +10,7 @@ jobs:
       wd: /root/lacinia
       docker_image: clojure:lein-2.7.1
     steps:
-      - cljoure/cached_test:
+      - clojure/cached_test:
          pre_test_steps:
            - restore_cache:
                keys:
